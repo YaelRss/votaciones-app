@@ -42,8 +42,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Ruta principal
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html")); // asegúrate de tener public/index.html
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+
 
 // Rutas API
 app.use("/api/auth", authRoutes(db));
