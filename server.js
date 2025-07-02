@@ -7,8 +7,11 @@ const authRoutes = require("./routes/auth");
 const votacionesRoutes = require("./routes/votaciones");
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
+console.log("PORT ENV:", PORT);
 
+
+ 
 // Conexión a MySQL
 const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -52,8 +55,7 @@ app.use("/api/auth", authRoutes(db));
 app.use("/api/votaciones", votacionesRoutes(db));
 
 // Iniciar servidor
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en el puerto: ${PORT}`);
 });
-
 
