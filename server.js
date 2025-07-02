@@ -11,7 +11,6 @@ const app = express();
 // Railway usa su propio puerto
 const PORT = process.env.PORT || 3000;
 
-
 // Conexión a MySQL
 const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -45,5 +44,5 @@ app.use("/api/votaciones", votacionesRoutes(db));
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`✅ Servidor corriendo en el puerto: ${PORT}`);
 });
