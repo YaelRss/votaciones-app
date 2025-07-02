@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detalle de Votación</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<p id="temporizador"></p>
+
+<div class="container">
+  <h1 id="titulo"></h1>
+  <p id="fecha"></p>
+  <p id="ronda-info"></p>
+
+  <form id="form-votar">
+    <div id="opciones-container"></div>
+    <button id="btn-votar" type="submit">🗳️ Votar</button>
+  </form>
+
+  <p id="mensaje" class="mensaje"></p>
+
+  <div id="admin-controls" style="display: none;">
+    <button id="btn-avanzar" type="button"><span class="emoji">➡️</span> Avanzar ronda</button>
+    <button id="btn-simular" type="button"><span class="emoji">🧪</span> Simular votos</button>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <button onclick="window.location.href='index.html'">🏠 Volver al inicio</button>
+    <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  const token = localStorage.getItem("token");
+  const id_usuario = localStorage.getItem("id_usuario");
+
+  let rondaActual = 1;
+  let intervalo;
+  let tiempoExpirado = false;
+
+  if (!token || !id_usuario) {
+    alert("Debes iniciar sesión para votar.");
+    window.location.href = "login.html";
+  }
+
+  async function cargarDetalle() {
+    try {
+      const res = await fetch(`http://localhost:3000/api/votaciones/${id}`);
+      const data = await res.json();
+
+      if (!data || !Array.isArray(data.opciones)) throw new Error("Datos inválidos");
+
+      document.getElementById("titulo").textContent = data.titulo;
+      document.getElementById("fecha").textContent = `📅 ${data.fecha_creacion}`;
+
+      const contenedor = document.getElementById("opciones-container");
+      contenedor.innerHTML = "";
+
+      const opciones = data.opciones;
+      const opcionesFiltradas = opciones.filter(op => op.votos !== null);
+      const total = opcionesFiltradas.reduce((sum, op) => sum + op.votos, 0);
+
+      opcionesFiltradas.forEach(op => {
+        const porcentaje = total ? Math.round((op.votos / total) * 100) : 0;
+
+        const div = document.createElement("div");
+        div.classList.add("opcion-label");
+        div.innerHTML = `
+          <label>
+            <input type="radio" name="opcion" value="${op.id}" />
+            ${op.texto} (${op.votos} votos)
+          </label>
+          <div class="barra-votos">
+            <div class="barra-votos-inner" style="width: ${porcentaje}%"></div>
+          </div>
+        `;
+        contenedor.appendChild(div);
+      });
+
+      rondaActual = Math.max(...opciones.map(op => op.ronda || 1));
+      document.getElementById("ronda-info").textContent = `🌀 Ronda actual: ${rondaActual}`;
+
+      document.getElementById("admin-controls").style.display = "block";
+
+      if (rondaActual <= 3) {
+        iniciarTemporizador(data.ronda_inicio || data.fecha_creacion);
+      }
+    } catch (error) {
+      console.error("Error al cargar detalles:", error);
+      document.getElementById("mensaje").textContent = "❌ Error al cargar la votación.";
+    }
+  }
+
+  function iniciarTemporizador(fechaInicioStr) {
+    const temporizador = document.getElementById("temporizador");
+    const inicio = new Date(fechaInicioStr).getTime();
+    const fin = inicio + 60000;
+
+    clearInterval(intervalo);
+    tiempoExpirado = false;
+    document.getElementById("btn-votar").disabled = false;
+
+    intervalo = setInterval(() => {
+      const ahora = new Date().getTime();
+      const restante = fin - ahora;
+
+      if (restante <= 0) {
+        clearInterval(intervalo);
+        temporizador.textContent = "⏱️ Tiempo terminado";
+        document.getElementById("btn-votar").disabled = true;
+        tiempoExpirado = true;
+        document.getElementById("btn-avanzar").click();
+      } else {
+        const segundos = Math.floor(restante / 1000);
+        temporizador.textContent = `⏳ Tiempo restante: ${segundos}s`;
+      }
+    }, 1000);
+  }
+
+  document.getElementById("btn-avanzar").addEventListener("click", async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/votaciones/eliminar-menores/${id}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      alert(data.mensaje || "Ronda procesada");
+
+      if (data.mensaje?.includes("🏆")) {
+        document.getElementById("admin-controls").style.display = "none";
+        document.getElementById("temporizador").textContent = "🎉 ¡Votación finalizada!";
+      } else {
+        location.reload();
+      }
+    } catch (err) {
+      console.error("Error al avanzar de ronda:", err);
+      alert("❌ Error al avanzar de ronda.");
+    }
+  });
+
+  document.getElementById("btn-simular").addEventListener("click", async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/votaciones/simular-votos/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cantidad: 30 })
+      });
+      const data = await res.json();
+      alert(data.mensaje || "Simulación completada");
+      location.reload();
+    } catch (err) {
+      console.error("Error al simular votos:", err);
+    }
+  });
+
+  document.getElementById("form-votar").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (tiempoExpirado) return;
+
+    const seleccionada = document.querySelector('input[name="opcion"]:checked');
+    if (!seleccionada) return;
+
+    const id_opcion = seleccionada.value;
+
+    try {
+      const res = await fetch("http://localhost:3000/api/votaciones/votar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ id_usuario, id_opcion })
+      });
+
+      const result = await res.json();
+      const mensaje = document.getElementById("mensaje");
+
+      if (result.success) {
+        mensaje.textContent = "✅ Voto registrado con éxito";
+        mensaje.style.color = "green";
+      } else {
+        mensaje.textContent = "❌ " + result.error;
+        mensaje.style.color = "red";
+      }
+    } catch (err) {
+      console.error(err);
+      const mensaje = document.getElementById("mensaje");
+      mensaje.textContent = "❌ Error del servidor";
+      mensaje.style.color = "red";
+    }
+  });
+
+  function cerrarSesion() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("id_usuario");
+    window.location.href = "login.html";
+  }
+
+  cargarDetalle();
+</script>
+</body>
+</html>

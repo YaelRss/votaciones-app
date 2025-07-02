@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Votaciones en Tiempo Real</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <script>
+    // Si no está logueado, redirige
+    const userId = localStorage.getItem("id_usuario");
+    if (!userId) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <div class="container">
+    <h1>🗳️ Votaciones Activas</h1>
+
+    <div id="votaciones-container" class="votaciones"></div>
+
+    <div style="margin-top: 2rem; text-align: center;">
+      <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+    </div>
+  </div>
+
+  <script>
+    async function cargarVotaciones() {
+      try {
+        const respuesta = await fetch("http://localhost:3000/api/votaciones/activas");
+        const votaciones = await respuesta.json();
+
+        const contenedor = document.getElementById("votaciones-container");
+        contenedor.innerHTML = "";
+
+        votaciones
+          .filter(v => v.titulo && v.total_opciones > 0)
+          .forEach(votacion => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = `
+              <h2>${votacion.titulo}</h2>
+              <p>📅 Fecha: ${votacion.fecha_creacion}</p>
+              <p>✅ Total de Votos: ${votacion.total_votos || 0}</p>
+              <p>🔢 Opciones: ${votacion.total_opciones}</p>
+              <a href="detalle.html?id=${votacion.id}" class="boton-ver">Ver y Votar</a>
+            `;
+            contenedor.appendChild(div);
+          });
+
+      } catch (err) {
+        console.error("Error al cargar votaciones:", err);
+      }
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("id_usuario");
+      window.location.href = "login.html";
+    }
+
+    cargarVotaciones();
+  </script>
+
+</body>
+</html>

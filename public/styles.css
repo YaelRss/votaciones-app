@@ -1,0 +1,161 @@
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+}
+
+/* Contenedor principal */
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 2rem 1rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  margin-top: 2rem;
+}
+
+/* Títulos */
+h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  color: #34495e;
+}
+
+/* Ronda y fecha */
+#fecha,
+#ronda-info {
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Temporizador */
+#temporizador {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+
+/* Formulario */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Opciones de votación */
+#opciones-container label {
+  display: block;
+  background: #ecf0f1;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid #bdc3c7;
+  transition: background 0.3s, border 0.3s;
+}
+
+#opciones-container input[type="radio"] {
+  margin-right: 0.75rem;
+}
+
+#opciones-container label:hover {
+  background: #d6eaff;
+  border-color: #2980b9;
+}
+
+/* Botones */
+button {
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #004999;
+}
+
+#admin-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Mensajes */
+.mensaje {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+/* Botones secundarios */
+.boton-ver {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 18px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+.boton-ver:hover {
+  background-color: #0056b3;
+}
+
+/* Responsividad */
+@media (max-width: 600px) {
+  .container {
+    padding: 1.5rem 1rem;
+    margin: 1rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  button, .boton-ver {
+    width: 100%;
+  }
+
+  #opciones-container label {
+    font-size: 0.95rem;
+    padding: 0.75rem;
+  }
+
+  #admin-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

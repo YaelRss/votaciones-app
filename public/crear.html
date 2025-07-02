@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crear Votación</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Crear nueva votación</h1>
+    <form id="form-crear">
+      <input type="text" id="titulo" placeholder="Título de la votación" required />
+      <div id="opciones-container">
+        <input type="text" class="opcion" placeholder="Opción 1" required />
+        <input type="text" class="opcion" placeholder="Opción 2" required />
+      </div>
+      <button type="button" onclick="agregarOpcion()">➕ Agregar opción</button>
+      <br><br>
+      <button type="submit">Crear</button>
+    </form>
+    <p id="mensaje" class="mensaje"></p>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Debes iniciar sesión para crear una votación.");
+      window.location.href = "login.html";
+    }
+
+    function agregarOpcion() {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "opcion";
+      input.placeholder = "Otra opción";
+      input.required = true;
+      document.getElementById("opciones-container").appendChild(input);
+    }
+
+    document.getElementById("form-crear").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const titulo = document.getElementById("titulo").value.trim();
+      const opcionesInputs = document.querySelectorAll(".opcion");
+      const opciones = [...opcionesInputs].map(input => input.value.trim()).filter(v => v);
+
+      if (opciones.length < 2) {
+        document.getElementById("mensaje").textContent = "Se requieren al menos 2 opciones";
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3000/api/votaciones/crear", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ titulo, opciones })
+        });
+
+        const data = await res.json();
+        const mensaje = document.getElementById("mensaje");
+
+        if (data.success) {
+          mensaje.textContent = "✅ Votación creada con éxito";
+          mensaje.style.color = "green";
+          setTimeout(() => {
+            window.location.href = "votaciones.html";  // 👉 asegúrate que este archivo exista
+          }, 1000);
+        } else {
+          mensaje.textContent = data.error || "❌ Error al crear votación";
+          mensaje.style.color = "red";
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        document.getElementById("mensaje").textContent = "❌ Error del servidor";
+      }
+    });
+  </script>
+</body>
+</html>

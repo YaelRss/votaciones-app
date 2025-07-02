@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar Sesión</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Iniciar Sesión</h1>
+    <form id="login-form">
+      <input type="email" id="email" placeholder="Correo electrónico" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <p id="mensaje" style="margin-top: 1rem; font-weight: bold;"></p>
+  </div>
+
+  <script>
+    async function iniciarSesion(email, password) {
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("id_usuario", data.usuario.id);
+
+          document.getElementById("mensaje").textContent = "Inicio de sesión exitoso";
+          setTimeout(() => {
+            window.location.href = "votaciones.html";
+          }, 1000);
+        } else {
+          document.getElementById("mensaje").textContent = data.error || "Datos incorrectos";
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("mensaje").textContent = "Error al iniciar sesión";
+      }
+    }
+
+    // Detectar parámetros en la URL y autocompletar
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const email = params.get("email");
+      const password = params.get("pass");
+
+      if (email && password) {
+        document.getElementById("email").value = email;
+        document.getElementById("password").value = password;
+
+        // Intentar login automáticamente
+        iniciarSesion(email, password);
+      }
+    });
+
+    // Login manual
+    document.getElementById("login-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      iniciarSesion(email, password);
+    });
+  </script>
+</body>
+</html>
