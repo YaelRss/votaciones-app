@@ -12,7 +12,7 @@
     // Si no está logueado, redirige
     const userId = localStorage.getItem("id_usuario");
     if (!userId) {
-      window.location.href = "login.html";
+      window.location.href = "index.html"; // ← redirige a la nueva página principal
     }
   </script>
 
@@ -58,7 +58,7 @@
     function cerrarSesion() {
       localStorage.removeItem("token");
       localStorage.removeItem("id_usuario");
-      window.location.href = "login.html";
+      window.location.href = "index.html"; // ← redirige al nuevo login principal
     }
 
     cargarVotaciones();

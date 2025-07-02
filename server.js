@@ -7,7 +7,9 @@ const authRoutes = require("./routes/auth");
 const votacionesRoutes = require("./routes/votaciones");
 
 const app = express();
-const PORT = 3000;
+
+// Railway usa su propio puerto
+const PORT = process.env.PORT || 3000;
 
 // Conexión a MySQL
 const db = mysql.createPool({
@@ -20,18 +22,23 @@ const db = mysql.createPool({
 // Middleware para leer JSON
 app.use(express.json());
 
-// CORS (puedes mejorar seguridad después)
+// Habilitar CORS básico
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
 
-// Servir archivos estáticos desde /public
+// Servir archivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
 
-// Rutas API
+// 🔁 Ruta raíz redirecciona a login o página principal
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html")); // o index.html si prefieres
+});
+
+// Rutas de la API
 app.use("/api/auth", authRoutes(db));
 app.use("/api/votaciones", votacionesRoutes(db));
 
@@ -39,5 +46,3 @@ app.use("/api/votaciones", votacionesRoutes(db));
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
 });
-
-

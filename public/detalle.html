@@ -45,7 +45,7 @@
 
   if (!token || !id_usuario) {
     alert("Debes iniciar sesión para votar.");
-    window.location.href = "login.html";
+    window.location.href = "index.html"; // ← cambio hecho aquí
   }
 
   async function cargarDetalle() {
@@ -199,7 +199,7 @@
   function cerrarSesion() {
     localStorage.removeItem("token");
     localStorage.removeItem("id_usuario");
-    window.location.href = "login.html";
+    window.location.href = "index.html"; // ← cambio aquí también
   }
 
   cargarDetalle();

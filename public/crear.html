@@ -27,7 +27,7 @@
 
     if (!token) {
       alert("Debes iniciar sesión para crear una votación.");
-      window.location.href = "login.html";
+      window.location.href = "index.html"; // ← redirige al nuevo login
     }
 
     function agregarOpcion() {
@@ -67,7 +67,7 @@
           mensaje.textContent = "✅ Votación creada con éxito";
           mensaje.style.color = "green";
           setTimeout(() => {
-            window.location.href = "votaciones.html";  // 👉 asegúrate que este archivo exista
+            window.location.href = "votaciones.html";
           }, 1000);
         } else {
           mensaje.textContent = data.error || "❌ Error al crear votación";
