@@ -8,10 +8,9 @@ const votacionesRoutes = require("./routes/votaciones");
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3000;
-console.log("PORT ENV:", PORT);
+console.log("🔧 PORT ENV:", process.env.PORT);
+console.log("🚀 Puerto usado:", PORT);
 
-
- 
 // Conexión a MySQL
 const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -48,14 +47,11 @@ app.get("/", (req, res) => {
   res.send("🚀 ¡Servidor funcionando correctamente en Railway!");
 });
 
-
-
 // Rutas API
 app.use("/api/auth", authRoutes(db));
 app.use("/api/votaciones", votacionesRoutes(db));
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Servidor corriendo en el puerto: ${PORT}`);
 });
-
