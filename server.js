@@ -7,7 +7,7 @@ const authRoutes = require("./routes/auth");
 const votacionesRoutes = require("./routes/votaciones");
 
 const app = express();
-const PORT = parseInt(process.env.PORT, 10) || 8080;
+const PORT = process.env.PORT;
 
 // Conexión a MySQL
 const db = mysql.createPool({
