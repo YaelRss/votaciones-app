@@ -7,8 +7,6 @@ const authRoutes = require("./routes/auth");
 const votacionesRoutes = require("./routes/votaciones");
 
 const app = express();
-
-// Railway usa su propio puerto
 const PORT = process.env.PORT || 3000;
 
 // Conexión a MySQL
@@ -17,7 +15,16 @@ const db = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306,
 });
+
+// Verificar conexión a la base de datos al iniciar
+db.getConnection()
+  .then(() => console.log("✅ Conectado a la base de datos"))
+  .catch((err) => {
+    console.error("❌ Error de conexión a la base de datos:", err.message);
+    process.exit(1);
+  });
 
 // Middleware para leer JSON
 app.use(express.json());
@@ -33,12 +40,12 @@ app.use((req, res, next) => {
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
 
-// 🔁 Ruta raíz redirecciona a login o página principal
+// Ruta principal
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "login.html")); // o index.html si prefieres
+  res.sendFile(path.join(__dirname, "public", "index.html")); // asegúrate de tener public/index.html
 });
 
-// Rutas de la API
+// Rutas API
 app.use("/api/auth", authRoutes(db));
 app.use("/api/votaciones", votacionesRoutes(db));
 
