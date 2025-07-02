@@ -7,7 +7,7 @@ const authRoutes = require("./routes/auth");
 const votacionesRoutes = require("./routes/votaciones");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT, 10) || 8080;
 
 // Conexión a MySQL
 const db = mysql.createPool({
@@ -42,8 +42,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Ruta principal
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.send("🚀 ¡Servidor funcionando correctamente en Railway!");
 });
+
 
 
 // Rutas API
@@ -51,7 +52,7 @@ app.use("/api/auth", authRoutes(db));
 app.use("/api/votaciones", votacionesRoutes(db));
 
 // Iniciar servidor
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en el puerto: ${PORT}`);
 });
 
